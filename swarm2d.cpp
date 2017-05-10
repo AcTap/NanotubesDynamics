@@ -133,7 +133,8 @@ void Swarm2d::calcVel()
             for(Swarm &s2:swarms){
                 for(Particle &p2:s2.swarm){
                     if(p.id==p2.id && p.swarm==p2.swarm) continue;
-                    if (p.coord.distanceToPoint(p2.coord)<=s.detectR){
+                    double cos = p.coord.dotProduct(p.direction,(p.coord-p2.coord))/p.direction.length()/((p.coord-p2.coord).length());
+                    if (p.coord.distanceToPoint(p2.coord)<=s.detectR && (s.angle>=0? std::abs(cos)<=std::abs(std::cos((90-s.angle)*PI/180.0)) : std::abs(cos)>=std::abs(std::cos(s.angle*PI/180.0)) )){
                         local.push_back(&p2);
                     }
                 }

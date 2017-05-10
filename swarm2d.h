@@ -2,6 +2,7 @@
 #define SWARM2D_H
 #include "swarmmodel.h"
 #include <random>
+#define PI 3.1415926
 
 class Swarm2d: public SwarmModel
 {

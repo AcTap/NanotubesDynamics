@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     model = new Swarm2d();
     model->setSize(500,500);
     model->addSwarm(100,QColor(255,0,0),20,73.03,0.75,0.17,28.81,0.32,0.37,5,0.61,0.07,0.08,0,90);
-    model->addSwarm(140,QColor(155,0,155),2,93.28,0.64,0.58,96.71,0.07,0.41,5,5.15,0.2,0.2,0,90);
+    //model->addSwarm(140,QColor(155,0,155),2,93.28,0.64,0.58,96.71,0.07,0.41,5,5.15,0.2,0.2,0,90);
     currentSwarm = model->getSwarm(0);
     glWindow = new Swarm2dWindow((Swarm2d*)model,central);
 
@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     swarmList = new QComboBox(buttonWid);
     swarmList->addItem(tr("Swarm 0"));
-    swarmList->addItem(tr("Swarm 1"));
+    //swarmList->addItem(tr("Swarm 1"));
     connect(swarmList,SIGNAL(currentIndexChanged(int)),this,SLOT(chooseSwarm(int)));
     subcontainer1->addWidget(swarmList);
     QPushButton *addbtn = new QPushButton("+",buttonWid);
@@ -129,6 +129,18 @@ MainWindow::MainWindow(QWidget *parent)
     viscLine->setMinimum(0);
     connect(viscLine,SIGNAL(valueChanged(double)),this,SLOT(setVisc(double)));
     subcontainer1->addWidget(viscLine);
+
+    auto angleLabel = new QLabel("Angle",buttonWid);
+    subcontainer1->addWidget(angleLabel);
+    angleSlider = MainWindow::createSlider(-90,90,1);
+    connect(angleSlider,SIGNAL(valueChanged(int)),this,SLOT(setAngle(int)));
+    subcontainer1->addWidget(angleSlider);
+    angleLine = new QDoubleSpinBox(buttonWid);
+    angleLine->setSingleStep(1);
+    angleLine->setMaximum(90);
+    angleLine->setMinimum(-90);
+    connect(angleLine,SIGNAL(valueChanged(double)),this,SLOT(setAngle(double)));
+    subcontainer1->addWidget(angleLine);
 
     subcontainer1->addStretch();
 
@@ -560,6 +572,19 @@ void MainWindow::setVisc(double value)
     viscSlider->setValue((int)(value*1000));
 }
 
+void MainWindow::setAngle(int value)
+{
+    float val = value;
+    currentSwarm->angle = val;
+    angleLine->setValue(val);
+}
+
+void MainWindow::setAngle(double value)
+{
+    currentSwarm->angle = value;
+    angleSlider->setValue((int)(value));
+}
+
 void MainWindow::saveDialog()
 {
     QString filename = QFileDialog::getSaveFileName(
@@ -635,4 +660,7 @@ void MainWindow::updateOptions()
 
     viscLine->setValue(currentSwarm->viscos);
     viscSlider->setValue((int)(currentSwarm->viscos*100));
+
+    angleLine->setValue(currentSwarm->angle);
+    angleSlider->setValue((int)(currentSwarm->angle));
 }

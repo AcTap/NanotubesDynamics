@@ -65,6 +65,9 @@ public slots:
     void setVisc(int);
     void setVisc(double);
 
+    void setAngle(int);
+    void setAngle(double);
+
     void saveDialog();
     void loadDialog();
 
@@ -119,6 +122,9 @@ private:
 
     QSlider *viscSlider;
     QDoubleSpinBox *viscLine;
+
+    QSlider *angleSlider;
+    QDoubleSpinBox *angleLine;
     //
 };
 
