@@ -1,8 +1,10 @@
 #version 330 core
-varying vec4 center;
+in vec4 center;
+in vec4 color;
 uniform float radius;
 uniform vec4 viewport;
 uniform vec2 win;
+out vec4 FragColor;
 void main(void)
 {
     vec2 ndc_center = center.xy+win/2;
@@ -13,10 +15,10 @@ void main(void)
     a = center.z ==0 ? a/5000: a/1000;
     if (d2>r2) {
 //        gl_FragDepth = center.z;
-//        gl_FragColor = vec4(0.0,1.0,0,1.0);
-        discard;
+        FragColor = vec4(0.0,1.0,0,1.0);
+//        discard;
     } else {
-        gl_FragColor = vec4((sin(a)+1)/2,(cos(a)+1)/2,0,1.0);
+        FragColor = color;
 //        gl_FragColor = vec4(1.0,0.0,0,1.0);
     }
 
