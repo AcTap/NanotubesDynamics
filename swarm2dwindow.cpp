@@ -2,6 +2,7 @@
 #include <QTimer>
 #include <QOpenGLBuffer>
 #include <QtConcurrent/QtConcurrent>
+#include <iostream>
 
 Swarm2dWindow::Swarm2dWindow(QWidget *parent):OpenGLWindow(parent)
 {
@@ -9,13 +10,13 @@ Swarm2dWindow::Swarm2dWindow(QWidget *parent):OpenGLWindow(parent)
 }
 
 
-static void NormalizeAngle(int &angle)
-{
-    while (angle < 0)
-        angle += 360*16;
-    while (angle > 360*16)
-        angle -= 360*16;
-}
+//static void NormalizeAngle(int &angle)
+//{
+//    while (angle < 0)
+//        angle += 360*16;
+//    while (angle > 360*16)
+//        angle -= 360*16;
+//}
 
 Swarm2dWindow::Swarm2dWindow(Swarm2d *model, QWidget *parent):
     OpenGLWindow(parent),running(false),tpp(50),m_xRot(0),m_yRot(0),m_zRot(0),
@@ -61,7 +62,7 @@ void Swarm2dWindow::initialize()
     c_posAttr = common_programm->attributeLocation("vertex");
     c_colAttr = common_programm->attributeLocation("color");
     c_matrixUniform = common_programm->uniformLocation("matrix");
-    glClearColor(0.0,0.0,0.0,1.0);
+    glClearColor(0.4,0.4,0.4,1.0);
     vao.create();
 }
 
@@ -144,7 +145,9 @@ void Swarm2dWindow::drawParts(uint key)
     m_program->setAttributeBuffer(m_colAttr,GL_FLOAT,0,4);
 
     glEnable(GL_DEPTH_TEST);
+//    glLineWidth(5);
     glDrawArrays(GL_LINES, 0,vertices.size()/2);
+//    glLineWidth(1);
     glDisable(GL_DEPTH_TEST);
     m_program->disableAttributeArray(m_posAttr);
     vertBufferColor->release();
@@ -156,6 +159,7 @@ void Swarm2dWindow::drawParts(uint key)
 void Swarm2dWindow::paintGL()
 {
     glViewport(0, 0, width(), height());
+    glLineWidth(3);
     QOpenGLVertexArrayObject::Binder binderVao(&vao);
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     QMatrix4x4 m_world;

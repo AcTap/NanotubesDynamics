@@ -25,6 +25,11 @@ public:
             return Relation();
         }
     }
+
+    void set(int swarmA,int swarmB, Relation relation){
+        table[bikey(swarmA,swarmB)]=relation;
+    }
+
     void reset(){
         table.clear();
     }

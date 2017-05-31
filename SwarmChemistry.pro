@@ -6,8 +6,8 @@ TARGET = SwarmChemistry
 TEMPLATE = app
 
 QMAKE_CXXFLAGS += -std=c++11 -fopenmp
-#LIBS += -lgomp -lpthread
-LIBS += -lomp
+LIBS += -lgomp -lpthread
+#LIBS += -lomp
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -17,7 +17,8 @@ SOURCES += main.cpp\
     swarmmodel.cpp \
     particle.cpp \
     swarm.cpp \
-    swarmrelation.cpp
+    swarmrelation.cpp \
+    relationwindow.cpp
 
 HEADERS  += mainwindow.h \
     openglwindow.h \
@@ -26,7 +27,8 @@ HEADERS  += mainwindow.h \
     swarmmodel.h \
     particle.h \
     swarm.h \
-    swarmrelation.h
+    swarmrelation.h \
+    relationwindow.h
 
 DISTFILES += \
     common.frag \

@@ -37,16 +37,14 @@ void Swarm2d::addSwarm(int amount, QColor color, float size, float dR, float c1,
     rel["c1"]=1;
     rel["c2"]=1;
     rel["c3"]=1;
-    rel["c4"]=1;
     rel["c6"]=1;
     rel["c7"]=1;
     relation.add(s->id,s->id,rel);
-    rel["c1"]=0.15f;
-    rel["c2"]=0.15f;
-    rel["c3"]=5.15f;
-    rel["c4"]=0.15f;
-    rel["c6"]=0.15f;
-    rel["c7"]=0.15f;
+    rel["c1"]=1;
+    rel["c2"]=1;
+    rel["c3"]=1;
+    rel["c6"]=1;
+    rel["c7"]=1;
     for(uint i =0; i< swarms.size()-1;++i)
     {
         relation.add(s->id,swarms[i].id,rel);
@@ -123,9 +121,11 @@ void Swarm2d::move()
 void Swarm2d::calcVel()
 {
     map<int,vector<QVector3D>> newVelocities;
+    map<int,vector<QVector3D>> newDirections;
     for(Swarm &s:swarms){
         newVelocities[s.id].resize(s.swarm.size());
-        #pragma omp parallel for shared(newVelocities)
+        newDirections[s.id].resize(s.swarm.size());
+        #pragma omp parallel for shared(newVelocities, newDirections)
         for(unsigned i=0;i<s.swarm.size();i++){
             Particle &p = s.swarm[i];
             vector<Particle*> local;
@@ -151,7 +151,7 @@ void Swarm2d::calcVel()
                 for (Particle* pa:local){
                     Relation rel = relation.get(s.id,pa->swarm);
                     a+=(p.coord - pa->coord)/(p.coord.distanceToPoint(pa->coord)*p.coord.distanceToPoint(pa->coord))*rel["c3"];
-                    dir+=pa->direction;
+                    dir+=pa->direction*rel["c6"];
                     vel += (pa->velocity-p.velocity)*rel["c2"];
                     coord += (pa->coord-p.coord)*rel["c1"];
                 }
@@ -161,13 +161,14 @@ void Swarm2d::calcVel()
                 a+= s.c1*coord+s.c2*(vel);
             }
             dir.normalize();
-            p.direction += s.c6*dir + s.c7*p.velocity;
-            p.direction.normalize();
+            QVector3D newDir= p.direction + s.c6*dir*(1-s.viscos) + s.c7*p.velocity*(1-s.viscos);
+            newDir.normalize();
+            newDirections[s.id][i] = newDir;
             if((*distr)(rd)+0.5<s.c4){
                 a.setX(a.x()+(*distr)(rd));
                 a.setY(a.y()+(*distr)(rd));
             }
-            QVector3D newVel = (p.velocity+a)*(1-s.viscos);  //new velocity
+            QVector3D newVel = p.velocity+a;  //new velocity
             if (newVel.length()>s.velMax){
                 newVel *= s.velMax/newVel.length();
             }
@@ -175,12 +176,14 @@ void Swarm2d::calcVel()
                 newVel*=1-s.c5*(1-s.velNorm/newVel.length());
             else
                 newVel.setX(s.velNorm) ;
-            newVelocities[s.id][i]=newVel;
+            newVelocities[s.id][i]=newVel*(1-s.viscos);
         }
     }
     for(Swarm &s:swarms){
+        #pragma omp parallel for
         for(uint i=0;i<s.swarm.size();++i){
             s.swarm[i].velocity = newVelocities[s.id][i];
+            s.swarm[i].direction =  newDirections[s.id][i];
         }
     }
 }

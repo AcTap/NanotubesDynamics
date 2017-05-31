@@ -1,4 +1,4 @@
- #ifndef SWARM_H
+#ifndef SWARM_H
 #define SWARM_H
 #include <vector>
 #include <QColor>

@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "relationwindow.h"
 #include <QStringListModel>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -12,11 +13,12 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    setWindowTitle(tr("Main window"));
     QWidget *central = new QWidget();
     autoAdd=true;
     model = new Swarm2d();
     model->setSize(500,500);
-    model->addSwarm(100,QColor(255,0,0),20,73.03,0.75,0.17,28.81,0.32,0.37,5,0.61,0.07,0.08,0,90);
+    model->addSwarm(100,QColor(255,0,0),20,50,0.75,0.75,60,0.3,0.3,5,0.0,0.0,0.0,0,90);
     //model->addSwarm(140,QColor(155,0,155),2,93.28,0.64,0.58,96.71,0.07,0.41,5,5.15,0.2,0.2,0,90);
     currentSwarm = model->getSwarm(0);
     glWindow = new Swarm2dWindow((Swarm2d*)model,central);
@@ -39,6 +41,10 @@ MainWindow::MainWindow(QWidget *parent)
     QPushButton *loadBtn = new QPushButton("Load",buttonWid);
     connect(loadBtn,SIGNAL(clicked(bool)),this,SLOT(loadDialog()));
     btnLayout->addWidget(loadBtn);
+
+    QPushButton *relBtn = new QPushButton("Relation",buttonWid);
+    connect(relBtn,SIGNAL(clicked(bool)),this,SLOT(relDialog()));
+    btnLayout->addWidget(relBtn);
 
 
     swarmList = new QComboBox(buttonWid);
@@ -120,11 +126,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto viscLabel = new QLabel("Viscosity",buttonWid);
     subcontainer1->addWidget(viscLabel);
-    viscSlider = MainWindow::createSlider(0,900,5);
+    viscSlider = MainWindow::createSlider(0,90,5);
     connect(viscSlider,SIGNAL(valueChanged(int)),this,SLOT(setVisc(int)));
     subcontainer1->addWidget(viscSlider);
     viscLine = new QDoubleSpinBox(buttonWid);
-    viscLine->setSingleStep(0.005);
+    viscLine->setSingleStep(0.05);
     viscLine->setMaximum(0.90);
     viscLine->setMinimum(0);
     connect(viscLine,SIGNAL(valueChanged(double)),this,SLOT(setVisc(double)));
@@ -186,48 +192,48 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto c4Label = new QLabel("Probability of random steering(c4)",buttonWid);
     subcontainer2->addWidget(c4Label);
-    c4Slider = MainWindow::createSlider(0,500,1);
+    c4Slider = MainWindow::createSlider(0,50,1);
     connect(c4Slider,SIGNAL(valueChanged(int)),this,SLOT(setC4(int)));
     subcontainer2->addWidget(c4Slider);
     c4Line = new QDoubleSpinBox(buttonWid);
-    c4Line->setSingleStep(0.001);
-    c4Line->setDecimals(3);
+    c4Line->setSingleStep(0.01);
+    c4Line->setDecimals(2);
     c4Line->setMaximum(0.5);
     connect(c4Line,SIGNAL(valueChanged(double)),this,SLOT(setC4(double)));
     subcontainer2->addWidget(c4Line);
 
     auto c5Label = new QLabel("Tendency of self-propulsion(c5)",buttonWid);
     subcontainer2->addWidget(c5Label);
-    c5Slider = MainWindow::createSlider(0,1000,1);
+    c5Slider = MainWindow::createSlider(0,100,1);
     connect(c5Slider,SIGNAL(valueChanged(int)),this,SLOT(setC5(int)));
     subcontainer2->addWidget(c5Slider);
     c5Line = new QDoubleSpinBox(buttonWid);
-    c5Line->setSingleStep(0.001);
-    c5Line->setDecimals(3);
+    c5Line->setSingleStep(0.01);
+    c5Line->setDecimals(1);
     c5Line->setMaximum(1.0);
     connect(c5Line,SIGNAL(valueChanged(double)),this,SLOT(setC5(double)));
     subcontainer2->addWidget(c5Line);
 
     auto c6Label = new QLabel("Alignment(c6)",buttonWid);
     subcontainer2->addWidget(c6Label);
-    c6Slider = MainWindow::createSlider(0,1000,1);
+    c6Slider = MainWindow::createSlider(0,100,1);
     connect(c6Slider,SIGNAL(valueChanged(int)),this,SLOT(setC6(int)));
     subcontainer2->addWidget(c6Slider);
     c6Line = new QDoubleSpinBox(buttonWid);
-    c6Line->setSingleStep(0.001);
-    c6Line->setDecimals(3);
+    c6Line->setSingleStep(0.01);
+    c6Line->setDecimals(2);
     c6Line->setMaximum(1.0);
     connect(c6Line,SIGNAL(valueChanged(double)),this,SLOT(setC6(double)));
     subcontainer2->addWidget(c6Line);
 
     auto c7Label = new QLabel("Involvement(c7)",buttonWid);
     subcontainer2->addWidget(c7Label);
-    c7Slider = MainWindow::createSlider(0,1000,1);
+    c7Slider = MainWindow::createSlider(0,100,1);
     connect(c7Slider,SIGNAL(valueChanged(int)),this,SLOT(setC7(int)));
     subcontainer2->addWidget(c7Slider);
     c7Line = new QDoubleSpinBox(buttonWid);
-    c7Line->setSingleStep(0.001);
-    c7Line->setDecimals(3);
+    c7Line->setSingleStep(0.01);
+    c7Line->setDecimals(2);
     c7Line->setMaximum(1.0);
     connect(c7Line,SIGNAL(valueChanged(double)),this,SLOT(setC7(double)));
     subcontainer2->addWidget(c7Line);
@@ -503,7 +509,7 @@ void MainWindow::setC3(double value)
 
 void MainWindow::setC4(int value)
 {
-    float vel = value/1000.0f;
+    float vel = value/100.0f;
     currentSwarm->c4 = vel;
     c4Line->setValue(vel);
 }
@@ -512,13 +518,13 @@ void MainWindow::setC4(int value)
 void MainWindow::setC4(double value)
 {
     currentSwarm->c4 = value;
-    c4Slider->setValue((int)(value*1000));
+    c4Slider->setValue((int)(value*100));
 }
 
 
 void MainWindow::setC5(int value)
 {
-    float vel = value/1000.0f;
+    float vel = value/100.0f;
     currentSwarm->c5 = vel;
     c5Line->setValue(vel);
 }
@@ -527,13 +533,13 @@ void MainWindow::setC5(int value)
 void MainWindow::setC5(double value)
 {
     currentSwarm->c5 = value;
-    c5Slider->setValue((int)(value*1000));
+    c5Slider->setValue((int)(value*100));
 }
 
 
 void MainWindow::setC6(int value)
 {
-    float vel = value/1000.0f;
+    float vel = value/100.0f;
     currentSwarm->c6 = vel;
     c6Line->setValue(vel);
 }
@@ -542,12 +548,12 @@ void MainWindow::setC6(int value)
 void MainWindow::setC6(double value)
 {
     currentSwarm->c6 = value;
-    c6Slider->setValue((int)(value*1000));
+    c6Slider->setValue((int)(value*100));
 }
 
 void MainWindow::setC7(int value)
 {
-    float vel = value/1000.0f;
+    float vel = value/100.0f;
     currentSwarm->c7 = vel;
     c7Line->setValue(vel);
 }
@@ -556,12 +562,12 @@ void MainWindow::setC7(int value)
 void MainWindow::setC7(double value)
 {
     currentSwarm->c7 = value;
-    c7Slider->setValue((int)(value*1000));
+    c7Slider->setValue((int)(value*100));
 }
 
 void MainWindow::setVisc(int value)
 {
-    float val = value/1000.0f;
+    float val = value/100.0f;
     currentSwarm->viscos = val;
     viscLine->setValue(val);
 }
@@ -569,7 +575,7 @@ void MainWindow::setVisc(int value)
 void MainWindow::setVisc(double value)
 {
     currentSwarm->viscos = value;
-    viscSlider->setValue((int)(value*1000));
+    viscSlider->setValue((int)(value*100));
 }
 
 void MainWindow::setAngle(int value)
@@ -604,6 +610,12 @@ void MainWindow::loadDialog()
             QDir::currentPath(),
             tr("Config files (*.txt *.dat *.ini *.conf);;All files (*.*)") );
     LoadConfiguration(filename);
+}
+
+void MainWindow::relDialog()
+{
+    RelationWindow *wnd = new RelationWindow(model);
+    wnd->show();
 }
 
 void MainWindow::Add()
@@ -647,16 +659,16 @@ void MainWindow::updateOptions()
     c3Slider->setValue((int)(currentSwarm->c3*100));
 
     c4Line->setValue(currentSwarm->c4);
-    c4Slider->setValue((int)(currentSwarm->c4*1000));
+    c4Slider->setValue((int)(currentSwarm->c4*100));
 
     c5Line->setValue(currentSwarm->c5);
-    c5Slider->setValue((int)(currentSwarm->c5*1000));
+    c5Slider->setValue((int)(currentSwarm->c5*100));
 
     c6Line->setValue(currentSwarm->c6);
-    c6Slider->setValue((int)(currentSwarm->c6*1000));
+    c6Slider->setValue((int)(currentSwarm->c6*100));
 
     c7Line->setValue(currentSwarm->c7);
-    c7Slider->setValue((int)(currentSwarm->c7*1000));
+    c7Slider->setValue((int)(currentSwarm->c7*100));
 
     viscLine->setValue(currentSwarm->viscos);
     viscSlider->setValue((int)(currentSwarm->viscos*100));

@@ -70,6 +70,7 @@ public slots:
 
     void saveDialog();
     void loadDialog();
+    void relDialog();
 
     void Add();
 

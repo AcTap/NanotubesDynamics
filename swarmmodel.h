@@ -28,9 +28,9 @@ public:
     virtual void getSize(int&,int&)=0;
     virtual void setRadius(float &)=0;
     bool continuos;
-protected:
-    vector<Swarm> swarms;
     SwarmRelation relation;
+protected:
+    vector<Swarm> swarms;    
     virtual void move()=0;
     virtual void calcVel()=0;
     int lastId;
